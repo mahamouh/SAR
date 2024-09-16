@@ -6,6 +6,10 @@
 - Le Task peut être un client ou un serveur. Il peut avoir N task par broker.
 - Multi thread  sur le broker (Déjà expliqué pourquoi en haut) et mono thread sur le channel (Pourquoi mono thread ? Car en TCP, les octects ne se perdent pas et viennet dans l'ordre mais pas instantanement donc si deux threads écrivent en même temps, le buffer n'aura pas un message clair. Par exemple si Client1 envoie 5 octets et Client2 envoie 2 octets. Le channel écrit d'abord ceux du client1 mais comme c'est en TCP, on aura par exemple 3 octects d'abord écrit puis comme le task a finit sa requête le client 2 envoie ses 2 octets et ses octects sont bien écrits dans le buffer. Donc on aura 3 octects du Client1 puis 2 octects du Client2 puis ensuite 2 octects du Client1.)
 
+## Package : 
+- task1Interface : regroupe les interface de la Task1;
+- task1 : regroupe les classes et leurs implementation
+
 ## Use case du client server 
 
 - Pouvoir se connecter au serveur 
