@@ -5,7 +5,17 @@ import task1Interface.*;
 public class Main {
 	public static void main(String[] args) {
 		
-        Broker brokerServer = new Broker("server");
+		BrokerManagement brokerManagement = new BrokerManagement();
+		
+		
+        Broker brokerServer = new Broker("server", null);
+        Broker brokerClient = new Broker("client", null);
+        
+        brokerManagement.addBroker(brokerServer);
+        brokerManagement.addBroker(brokerClient);
+        
+        brokerServer.setBroker(brokerManagement);
+        brokerClient.setBroker(brokerManagement);
         
         Task server = new Task(brokerServer, () -> {
         	try {
@@ -24,11 +34,11 @@ public class Main {
         });
         
         
-        Broker brokerClient = new Broker("client");
+        
         
         Task client = new Task(brokerClient, () -> {
         	try {
-        	Channel channelClient = brokerClient.connect("localhost", 88);
+        	Channel channelClient = brokerClient.connect("server", 88);
         	
         	assert channelClient.disconnected() == false : "Le client est censé être connecter";
         	
@@ -58,9 +68,9 @@ public class Main {
         
         try {
         	server.start();
+        	client.start();
+        	
 			server.join();
-			
-			client.start();
 			client.join();
 			
 			assert server.getBroker() == brokerServer : "Il y'a un problème dans la méthode getBroker";
