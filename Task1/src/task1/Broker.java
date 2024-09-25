@@ -10,10 +10,12 @@ public class Broker implements IBroker {
 	private HashMap<Integer, RdV> rdV;
 	BrokerManagement brokerManagement;
 
-	public Broker(String name, BrokerManagement brokerManagement) {
+	public Broker(String name) {
 		this.name = name;
 		this.rdV = new HashMap<Integer, RdV>();
-		this.brokerManagement = brokerManagement;
+		this.brokerManagement = BrokerManagement.getSelf();
+		this.brokerManagement.addBroker(this);
+		
 	}
 
 	public void setBroker(BrokerManagement brokerManagement) {
@@ -24,12 +26,12 @@ public class Broker implements IBroker {
 		return this.name;
 	}
 
-	public void addRdV(int port) {
+	public synchronized void addRdV(int port) {
 		RdV rdv = new RdV(port);
 		this.rdV.put(port, rdv);
 	}
 
-	public void removeRdV(int port) {
+	public synchronized void removeRdV(int port) {
 		this.rdV.remove(port);
 	}
 
