@@ -12,7 +12,7 @@ public class Main {
         Broker brokerClient = new Broker("client", null);
         
         brokerManagement.addBroker(brokerServer);
-        brokerManagement.addBroker(brokerClient);
+        brokerManagement.addBroker(brokerClient); 
         
         brokerServer.setBroker(brokerManagement);
         brokerClient.setBroker(brokerManagement);
@@ -21,12 +21,7 @@ public class Main {
         	try {
         		
         	Channel channelServer = brokerServer.accept(88);
-        	
-        	byte[] buffer = new byte[256];
-            int bytesRead = channelServer.read(buffer, 0, buffer.length);
-            channelServer.write(buffer, 0, bytesRead);
-            
-            
+
         	}catch (Exception e) {
                 System.out.println("Erreur dans le serveur: " + e.getMessage());
             }

@@ -24,45 +24,48 @@ public class Broker implements IBroker {
 		return this.name;
 	}
 
-	public void addRdV(int port) {
-		RdV rdv = new RdV(port);
-		this.rdV.put(port, rdv);
-	}
-
-	public void removeRdV(int port) {
-		this.rdV.remove(port);
-	}
-
-	public RdV containsRdV(int port) {
-		RdV rdv = this.rdV.get(port);
-		return rdv;
-	}
 
 	@Override
 	public Channel accept(int port) {
-		synchronized (this) {
-			RdV rdv = containsRdV(port);
-			if (rdv == null) {
-				rdv = new RdV(port);
-				this.rdV.put(port, rdv);
-			} 
-			return rdv.accept(this);
+		RdV rdv = null;
+		synchronized (rdV) {
+			rdv = rdV.get(port);
+			if(rdv != null) {
+				throw new IllegalStateException("Port " + port + " dejà present");
+			}
+			rdv = new RdV(port);
+			this.rdV.put(port, rdv);
+			rdV.notifyAll();
 		}
+		return rdv.accept(this);
 	}
 
 	@Override
 	public Channel connect(String name, int port) {
-		synchronized(this) {
-			RdV rdv = containsRdV(port);
-			if (rdv == null) {
-				rdv = new RdV(port);
-				this.rdV.put(port, rdv);
-				if(brokerManagement.getBroker(name) !=null) {
-					brokerManagement.getBroker(name).addRdV(port);
+		Broker b = this.brokerManagement.getBroker(name);
+		if(b == null) {
+			return null;
+		} 
+		return b.connectBroker(this, port);
+		
+	}
+	
+	private Channel connectBroker(Broker b, int port) {
+		RdV rdv = null;
+		synchronized (rdV) {
+			rdv = rdV.get(port);
+			while(rdv == null) {
+				try {
+					rdV.wait();
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
 				}
+				rdv = rdV.get(port);
 			}
-			return rdv.connect(this);
+			this.rdV.remove(port);
 		}
+		return rdv.connect(this);
 	}
 
 }

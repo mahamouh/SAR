@@ -20,16 +20,8 @@ public class RdV {
 		return port;
 	}
 
-	public synchronized Channel accept(Broker brokerAccept) {
-		this.brokerAccept = brokerAccept;
-		
-		bufferAC = new CircularBuffer(256);
-		bufferCA = new CircularBuffer(256);
-		
-		System.out.println("Le thread connect est reveillé");
-		notifyAll();
-		
-		while(brokerConnect == null) {
+	public synchronized void waitChannel() {
+		if (brokerAccept == null || brokerAccept == null) {
 			try {
 				System.out.println("Le thread accept est bloqué");
 				wait();
@@ -38,29 +30,44 @@ public class RdV {
 				e.printStackTrace();
 			}
 		}
-		brokerConnect.addRdV(port);
-		channelAccept = new Channel(bufferAC, bufferCA);
-		System.out.println("La connexion a été accepté");
+	}
+
+	public synchronized Channel accept(Broker brokerAccept) {
+		this.brokerAccept = brokerAccept;
+
+		bufferAC = new CircularBuffer(256);
+		bufferCA = new CircularBuffer(256);
+
+		System.out.println("Le thread connect est reveillé");
+		
+
+		if (brokerConnect == null) {
+			System.out.println("Le thread accept est bloqué");
+			waitChannel();
+		} else {
+			channelAccept = new Channel(bufferAC, bufferCA, channelConnect);
+			notifyAll();
+			System.out.println("La connexion a été accepté");
+		}
+
+		
 		return channelAccept;
 
 	}
 
 	public synchronized Channel connect(Broker brokerConnect) {
 		this.brokerConnect = brokerConnect;
-		notifyAll();
 		System.out.println("Le thread accept est reveillé");
-		
-		while(brokerAccept == null) {
+
+		if (brokerAccept == null) {
 			System.out.println("Le thread connect est bloqué");
-			try {
-				wait();
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
+			waitChannel();
+		} else {
+			channelConnect = new Channel(bufferCA, bufferAC, channelAccept);
+			notifyAll();
+			System.out.println("La connexion a été accepté");
 		}
-		brokerAccept.addRdV(port);
-		channelConnect = new Channel(bufferCA, bufferAC);
-		System.out.println("La connexion a été accepté");
+		
 		return channelConnect;
 
 	}
