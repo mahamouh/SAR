@@ -7,20 +7,21 @@ public class Main {
 		
 		BrokerManagement brokerManagement = BrokerManagement.getSelf();
 		
-        Broker brokerServer = new Broker("server");
-        Broker brokerClient = new Broker("client");
-   
+		
+        Broker brokerServer = new Broker("server", null);
+        Broker brokerClient = new Broker("client", null);
+        
+        brokerManagement.addBroker(brokerServer);
+        brokerManagement.addBroker(brokerClient); 
+        
+        brokerServer.setBroker(brokerManagement);
+        brokerClient.setBroker(brokerManagement);
         
         Task server = new Task(brokerServer, () -> {
         	try {
         		
         	Channel channelServer = brokerServer.accept(88);
-        	
-        	byte[] buffer = new byte[256];
-            int bytesRead = channelServer.read(buffer, 0, buffer.length);
-            channelServer.write(buffer, 0, bytesRead);
-            
-            
+
         	}catch (Exception e) {
                 System.out.println("Erreur dans le serveur: " + e.getMessage());
             }
