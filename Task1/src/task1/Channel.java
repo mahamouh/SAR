@@ -21,7 +21,21 @@ public class Channel implements IChannel {
 		if (disconnected()) {
 			throw new DisconnectedException("La connection a été coupée.");
 		}
-		while (!bufferIn.empty() || cpt != length - offset) {
+		if(bufferIn.empty()) {
+			synchronized(bufferIn) {
+				while(bufferIn.empty()) {
+					if (disconnected()) {
+						throw new DisconnectedException("La connection a été coupée.");
+					}
+					try {
+						bufferIn.wait();
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+		}
+		while (!bufferIn.empty() || cpt != length) {
 			if (!disconnected()) {
 				bytes[offset + cpt] = bufferIn.pull();
 				cpt += 1;
@@ -29,7 +43,14 @@ public class Channel implements IChannel {
 				throw new DisconnectedException("La connection a été coupée.");
 			}
 		}
-		System.out.println("Nombre d'octetcs envoyé: " + (length - offset));
+		
+		if(cpt != 0) {
+			synchronized(bufferOut) {
+				bufferOut.notifyAll();
+			}
+		}
+		
+		System.out.println("Nombre d'octetcs envoyé: " + length);
 		System.out.println("Nombre d'octetcs lus: " + cpt);
 		return cpt;
 	}
@@ -40,7 +61,23 @@ public class Channel implements IChannel {
 		if (disconnected()) {
 			throw new DisconnectedException("La connection a été coupée. Veuillez vous déconnecter");
 		}
-		while (!bufferIn.full() || cpt != length - offset) {
+		
+		if(bufferOut.full()) {
+			synchronized(bufferOut) {
+				while(bufferOut.full()) {
+					if (disconnected()) {
+						throw new DisconnectedException("La connection a été coupée.");
+					}
+					try {
+						bufferOut.wait();
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+		}
+		
+		while (!bufferOut.full() || cpt != length) {
 			if (!disconnected()) {
 				bufferOut.push(bytes[offset + cpt]);
 				cpt += 1;
@@ -48,16 +85,36 @@ public class Channel implements IChannel {
 				throw new DisconnectedException("La connection a été coupée. Veuillez vous déconnecter");
 			}
 		}
-		System.out.println("Nombre d'octetcs envoyé: " + (length - offset));
+		
+		if(cpt != 0) {
+			synchronized(bufferIn) {
+				bufferIn.notifyAll();
+			}
+		}
+		System.out.println("Nombre d'octetcs envoyé: " + length);
 		System.out.println("Nombre d'octetcs écrits: " + cpt);
 		return cpt;
 	}
 
 	@Override
 	public void disconnect() {
+		if(isDisconnect) {
+			System.out.println("La déconnexion a deja été coupée");
+			return;
+		}
+		
 		System.out.println("Demande de deconnexion réalisée");
+		
 		this.isDisconnect = true;
 		this.rmChannel.isDisconnect = true;
+		
+		synchronized(bufferIn) {
+			bufferIn.notifyAll();
+		}
+		
+		synchronized(bufferOut) {
+			bufferOut.notifyAll();
+		}
 	}
 
 	@Override
