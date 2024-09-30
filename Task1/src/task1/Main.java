@@ -5,7 +5,7 @@ import task1Interface.*;
 public class Main {
 	public static void main(String[] args) {
 		
-		BrokerManagement brokerManagement = BrokerManagement.getSelf();
+		BrokerManagement brokerManagement = new BrokerManagement();
 		
 		
         Broker brokerServer = new Broker("server", null);
@@ -13,9 +13,6 @@ public class Main {
         
         brokerManagement.addBroker(brokerServer);
         brokerManagement.addBroker(brokerClient); 
-        
-        brokerServer.setBroker(brokerManagement);
-        brokerClient.setBroker(brokerManagement);
         
         Task server = new Task(brokerServer, () -> {
         	try {
