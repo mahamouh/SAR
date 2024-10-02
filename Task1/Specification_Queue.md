@@ -6,7 +6,9 @@ Avant de commercer, il faut mieux avoir lu la spécification de la Task1 qui se 
 C'est à dire qu'ici, nous partons du principe que vous avez ce que c'est un broker et un channel. Que vous avez compris pourquoi avoir un brokerManagement, à quoi sert le rendez vous et les fonctionnalités d'un Task. 
 
 # Nouvelle specification 
-Dans la Task1 : deux tasks s'envoyaient des messages en suivant le protocole TCP. Les messages étaient sûrs d'arrivés (pas d'un coup certes) et dans le bon ordre. Cette fois, on va utiliser un protocole UDP. Les messages vont arriver sous forme de paquet.
+Dans la Task1 : deux tasks s'envoyaient des messages en suivant le protocole TCP. Les messages étaient sûrs d'arrivés (pas d'un coup certes) et dans le bon ordre. Cette fois, on va utiliser un protocole UDP. Les messages vont arriver sous forme de paquet. 
+
+Nous avons aussi un environnement multi-thread (à cause des méthodes bloquantes par exemple les méthodes accept et connect)
 
 Ici, nous avons QueueBroker qui se comporte comme Broker dans la Task1. Il est là afin de faire un accept et un connect entre deux Task et MessageQueue (comme le channel dans la Task1) sert de cannal de communique entre les deux Task pour qu'ils puissent s'envoyer ou recevoir des messages sous forme de paquet de byte.
 
