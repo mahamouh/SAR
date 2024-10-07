@@ -11,10 +11,14 @@ Ici, nous n'allons plus utiliser des méthodes bloquantes mais plutot de l'évè
 
 
 ## QueueBroker 
+QueueBroker est une classe abstraite utilisée pour gérer les connexions réseau et la communication via des files de messages (MessageQueue). Elle permet à un client de se connecter à un serveur ou à un serveur d'accepter des connexions entrantes.
+
 Pour QueueBroker, nous aurons deux interfaces listener : un AcceptListener et un ConnectListener
 
 - AcceptListener : est là afin de notifier le thread quand un autre thread a repondu à son accept
 - ConnectListener : est là afin de notifier le thread quand un autre thread a repondu à son connect
+
+On crée des méthodes AcceptListener et ConnectListener puisque ces deux méthodes sont bloquantes. Il faut notifier quand est-ce que le accept et connect ont été acceptées et arrêtées d'être bloquées.
 
 Comment utiliser ces interfaces ? 
 
@@ -57,3 +61,19 @@ Pour ce qui est de la déconnexion, un thread appelle sa méthode ``` void close
 
 ## Message 
 Message prend un champ : un tableau de byte, un int offset et une len afin de tomber le bon tableau de byte qui doit être renvoyé.
+
+## Task 
+La classe Task permet de gérer l'exécution asynchrone de tâches. Elle fournit des méthodes pour ajouter des tâches à exécuter, arrêter ces tâches et vérifier leur état.
+
+Méthodes
+- ``` void post(Runnable r) ``` : permet d'ajouter une tâche (représentée par un Runnable) pour exécution asynchrone.
+- ``` static Task task()``` : Renvoie l'instance de la tâche courante.
+- ``` void kill() ``` : Arrête la tâche en cours, empêchant son exécution future.
+- ``` boolean killed() ``` : Indique si la tâche a été arrêtée.
+
+## EventPump 
+EventPump est une pompe à event qui aura comme champ ``` List<Runnable> queue ```. Chaque Task va mette son runnable grâce à la méthode ``` void post(Runnable r) ``` et alors crée une pompe avec plusieurs événements (avec les autres Task).
+Ici, EventPump extends Thread ce qui veut dire qu'il a une méthode run() qui va être fait. Dans notre ças, on a un ``` public synchronized void run() ``` où on fait le run de tous les runnables se trouvant dans notre liste de queue.
+Nous avons aussi : 
+- Une méthode  ``` public synchronized void post(Runnable r) ``` afin d'ajouter des runnable à notre pompe à events
+- Une méthode ``` private void sleep() ``` qui va endormir la pompe à event 
