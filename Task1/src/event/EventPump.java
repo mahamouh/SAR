@@ -21,6 +21,9 @@ public class EventPump {
 
 	public synchronized void run() {
 		TaskEvent task;
+		if(queue.isEmpty()) {
+			sleep();
+		}
 		while (true) {
 			task = queue.remove(0);
 			while (task != null) {

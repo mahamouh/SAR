@@ -9,7 +9,7 @@ public class BrokerManagement {
 		self = new BrokerManagement();
 	}
 	
-	static BrokerManagement getSelf() {
+	public static BrokerManagement getSelf() {
 		return self;
 	}
 	
@@ -23,7 +23,7 @@ public class BrokerManagement {
 		String name = broker.getName();
 		Broker b = this.brokers.get(name);
 		if(b != null) {
-			throw new IllegalStateException("Broker " + name + " already exists");
+			System.out.println("Broker " + broker.name + " existe deja");
 		}
 		this.brokers.put(name, broker);
 	}
