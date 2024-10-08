@@ -2,28 +2,39 @@ package event;
 
 import eventAbstract.TaskEventAbstract;
 
-public class TaskEvent extends TaskEventAbstract{
-	QueueBrokerEvent queueBrokerEvent;
+public class TaskEvent extends TaskEventAbstract {
 	private static TaskEvent task;
 	Runnable runnable;
 	boolean killed = false;
 
-	public TaskEvent(QueueBrokerEvent queue, Runnable r) {
-		this.queueBrokerEvent = queue;
-		this.runnable = r;
+	public TaskEvent() {
+		this.runnable = null;
 		task = this;
 	}
 
 	public void post(Runnable r) {
 		if (!this.killed) {
-			EventPump.getSelf().post(r);
+			this.runnable = r;
+			EventPump.getSelf().post(this);
 		} else {
 			throw new IllegalStateException("La Task a été tuée");
 		}
 
 	}
 
-	public static TaskEvent task() {
+	public void postTask() {
+		if (!this.killed) {
+			EventPump.getSelf().post(this);
+		} else {
+			throw new IllegalStateException("La Task a été tuée");
+		}
+	}
+
+	public Runnable getRunnable() {
+		return this.runnable;
+	}
+
+	public static TaskEvent getTask() {
 		return task;
 	}
 

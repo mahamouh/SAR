@@ -7,7 +7,7 @@ import task1.Channel;
 
 public class MessageQueueEvent extends MessageQueueEventAbstract{
 	private IListener listener;
-	private IListener rmListener;
+	private MessageQueueEvent rmMessageQueueEvent;
 	private boolean isClosed = false;
 	private Channel channel;
 
@@ -15,10 +15,9 @@ public class MessageQueueEvent extends MessageQueueEventAbstract{
 		super(channel);
 	}
 	
-	public void setRmMessageQueueEvent(MessageQueueEvent rmMessageQueueEvent) {
-		this.rmListener = rmMessageQueueEvent.listener;
+	void setRmMessageQueueEvent(MessageQueueEvent rmMessageQueueEvent) {
+		this.rmMessageQueueEvent = rmMessageQueueEvent;
 	}
-
 
 
 	public boolean send(byte[] bytes) {
@@ -50,11 +49,12 @@ public class MessageQueueEvent extends MessageQueueEventAbstract{
 			}
 		}
 
-		byte[] message = new byte [length];
-		System.arraycopy(bytes, cpt, message, 0, length);
-		if (rmListener != null) {
-			rmListener.received(message);
+		
+		if (listener != null) {
+			Message msg = new Message(bytes, offset, length);
+			listener.sent(msg);
 		}
+
 
 		System.out.println("le message a bien été envoyé");
 		return true;
@@ -88,8 +88,7 @@ public class MessageQueueEvent extends MessageQueueEventAbstract{
 		}
 
 		if (listener != null) {
-			Message msg = new Message(bytes, 0, bytes.length);
-			listener.sent(msg);
+			listener.received(bytes);
 		}
 
 		System.out.println("le message a bien été envoyé");
@@ -100,8 +99,8 @@ public class MessageQueueEvent extends MessageQueueEventAbstract{
 	public void close() {
 		isClosed = true;
 		channel.disconnect();
-		if (rmListener != null) {
-			rmListener.closed();
+		if (rmMessageQueueEvent.listener != null) {
+			rmMessageQueueEvent.listener.closed();
 		}
 		System.out.println("MessageQueue est fermé");
 	}
