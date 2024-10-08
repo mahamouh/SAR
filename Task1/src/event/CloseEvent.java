@@ -1,18 +1,16 @@
 package event;
 
-import java.util.Map;
+import task1.Channel;
 
-import eventAbstract.QueueBrokerEventAbstract.IAcceptListener;
-
-public class AcceptEvent extends TaskEvent{
+public class CloseEvent extends TaskEvent{
 	Runnable runnable;
 
-	public AcceptEvent(int port, IAcceptListener listener, Map<Integer, IAcceptListener> accepts) {
+	public CloseEvent(Channel channel) {
 		super();
 		this.runnable = new Runnable () {
 			@Override
 			public void run() {
-				accepts.put(port, listener);
+				channel.disconnect();
 			}
 		};
 	}
@@ -25,4 +23,5 @@ public class AcceptEvent extends TaskEvent{
 	public void postTask() {
 		super.postTask();
 	}
+
 }

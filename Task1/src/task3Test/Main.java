@@ -4,7 +4,10 @@ import event.EventPump;
 import event.Message;
 import event.MessageQueueEvent;
 import event.QueueBrokerEvent;
+import event.QueueBrokerManager;
 import eventAbstract.QueueBrokerEventAbstract;
+import task1.Broker;
+import task1.BrokerManagement;
 import task1.Task;
 
 public class Main {
@@ -12,10 +15,17 @@ public class Main {
 	public final static int messageSize = 5000;
 	
     public static void main(String[] args) {
+    	BrokerManagement brokerManagement = BrokerManagement.getSelf();
+    	Broker brokerServer = new Broker("server");
+    	Broker brokerClient = new Broker("client");
     	
-    	    	
-		QueueBrokerEvent serverQueueBroker = new QueueBrokerEvent("server");	
-        new Task(serverQueueBroker, () -> runServerMessage(messageSize));
+    	brokerManagement.addBroker(brokerServer);
+    	brokerManagement.addBroker(brokerClient);
+    	
+    	QueueBrokerManager management = QueueBrokerManager.getSelf();
+		QueueBrokerEvent serverQueueBroker = new QueueBrokerEvent("server");
+		serverQueueBroker.setBroker(brokerServer);
+        new Task(serverQueueBroker, () -> runServerMessage(messageSize)).start();
         
         try {
             Thread.sleep(1000); // Wait for the server to starts
@@ -24,7 +34,11 @@ public class Main {
         }
 
         QueueBrokerEvent clientQueueBroker = new QueueBrokerEvent("client");
-        new Task(clientQueueBroker, () -> runClientMessage(messageSize));
+        clientQueueBroker.setBroker(brokerClient);
+        new Task(clientQueueBroker, () -> runClientMessage(messageSize)).start();
+        
+        management.addBroker(serverQueueBroker);
+        management.addBroker(clientQueueBroker);
         
         EventPump.getSelf().run();
     }

@@ -44,7 +44,8 @@ public class QueueBrokerEvent extends QueueBrokerEventAbstract {
 			System.out.println("Port " + port + " est déjà relié");
 			return false;
 		} else if (channelAccept != null) {
-			accepts.put(port, listener);
+			AcceptEvent acceptEvent = new AcceptEvent(port, listener, accepts);
+			acceptEvent.postTask();
 			System.out.println("Port " + port + " a bien été relié");
 			return true;
 		}
@@ -69,9 +70,7 @@ public class QueueBrokerEvent extends QueueBrokerEventAbstract {
 
 		IAcceptListener acceptListener = queueBrokerServer.accepts.get(port);
 
-		channelConnect = broker.connect(name, port);
-
-		if (acceptListener != null && channelConnect != null) {
+		if (acceptListener != null) {
 
 			ConnectEvent connectEvent = new ConnectEvent(this, name, port, listener);
 			connectEvent.postTask();
@@ -80,13 +79,13 @@ public class QueueBrokerEvent extends QueueBrokerEventAbstract {
 			listener.refused();
 			return false;
 		}
-		
+
 	}
 
 	public void _connect(String name, int port, IConnectListener listener) {
 		QueueBrokerEvent queueBrokerServer = QueueBrokerManager.getSelf().getBroker(name);
 		IAcceptListener acceptListener = queueBrokerServer.accepts.get(port);
-
+		channelConnect = broker.connect(name, port);
 		if (acceptListener != null && channelConnect != null) {
 
 			channelAccept = queueBrokerServer.getChannelAccept();

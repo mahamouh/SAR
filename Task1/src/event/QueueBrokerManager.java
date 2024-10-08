@@ -10,7 +10,7 @@ private static QueueBrokerManager self;
 		self = new QueueBrokerManager();
 	}
 	
-	static QueueBrokerManager getSelf() {
+	public static QueueBrokerManager getSelf() {
 		return self;
 	}
 	

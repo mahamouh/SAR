@@ -98,10 +98,8 @@ public class MessageQueueEvent extends MessageQueueEventAbstract{
 
 	public void close() {
 		isClosed = true;
-		channel.disconnect();
-		if (rmMessageQueueEvent.listener != null) {
-			rmMessageQueueEvent.listener.closed();
-		}
+		CloseEvent closeEvent = new CloseEvent(channel);
+		closeEvent.postTask();
 		System.out.println("MessageQueue est fermé");
 	}
 

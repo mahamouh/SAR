@@ -37,17 +37,13 @@ public class RdV {
 
 		bufferAC = new CircularBuffer(256);
 		bufferCA = new CircularBuffer(256);
-
-		System.out.println("Le thread connect est reveillé");
 		
 
 		if (brokerConnect == null) {
-			System.out.println("Le thread accept est bloqué");
 			waitChannel();
 		} else {
 			channelAccept = new Channel(bufferAC, bufferCA, channelConnect);
 			notifyAll();
-			System.out.println("La connexion a été accepté");
 		}
 
 		
@@ -57,15 +53,12 @@ public class RdV {
 
 	public synchronized Channel connect(Broker brokerConnect) {
 		this.brokerConnect = brokerConnect;
-		System.out.println("Le thread accept est reveillé");
 
 		if (brokerAccept == null) {
-			System.out.println("Le thread connect est bloqué");
 			waitChannel();
 		} else {
 			channelConnect = new Channel(bufferCA, bufferAC, channelAccept);
 			notifyAll();
-			System.out.println("La connexion a été accepté");
 		}
 		
 		return channelConnect;
