@@ -23,7 +23,7 @@ public class BrokerManagement {
 		String name = broker.getName();
 		Broker b = this.brokers.get(name);
 		if(b != null) {
-			throw new IllegalStateException("Broker " + name + " already exists");
+			System.out.println("Broker " + name + " already exists");
 		}
 		this.brokers.put(name, broker);
 	}

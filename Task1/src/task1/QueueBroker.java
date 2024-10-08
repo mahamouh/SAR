@@ -15,17 +15,26 @@ public class QueueBroker implements IQueueBroker{
 	public String name() {
 		return this.name;
 	}
-
+ 
 	@Override
-	public MessageQueue accept(int port) {
+	public synchronized MessageQueue accept(int port) {
 		Channel channelAccept = broker.accept(port);
-		return new MessageQueue(channelAccept);
+		if(channelAccept != null) {
+			return new MessageQueue(channelAccept);
+		} else {
+			throw new IllegalStateException("IL y'a eu un problème lors de l'accept");
+		}
+		
 	}
 
 	@Override
-	public MessageQueue connect(String name, int port) {
+	public synchronized MessageQueue connect(String name, int port) {
 		Channel channelConnect = broker.connect(name, port);
-		return new MessageQueue(channelConnect);
+		if(channelConnect != null) {
+			return new MessageQueue(channelConnect);
+		} else {
+			throw new IllegalStateException("La connexion a été refusé");
+		}
 	}
 
 	@Override

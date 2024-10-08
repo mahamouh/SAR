@@ -9,9 +9,12 @@ public class MessageQueue implements IMessageQueue {
 	public MessageQueue(Channel channel) {
 		this.channel = channel;
 	}
-
+ 
 	@Override
-	public void send(byte[] bytes, int offset, int length) {
+	public void send(byte[] bytes, int offset, int length) throws DisconnectedException {
+		if(closed()) {
+			throw new DisconnectedException("La connection a été coupée.");
+		}
 		//On écrit la taille de buffer
 		byte[] sizeBuffer = intToBytes(length);
 		try {
@@ -33,7 +36,11 @@ public class MessageQueue implements IMessageQueue {
 	}
 
 	@Override
-	public byte[] receive() {
+	public byte[] receive() throws DisconnectedException {
+		if(closed()) {
+			throw new DisconnectedException("La connection a été coupée.");
+		}
+		
 		//On lit la taille du buffer
 		byte[] sizeBuffer = new byte[4];
 		try {

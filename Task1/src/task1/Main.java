@@ -26,6 +26,10 @@ public class Main {
 			try {
 
 				MessageQueue messageServer = queueServer.accept(88);
+				
+				byte[] receiveData = messageServer.receive();
+				
+				messageServer.send(receiveData, 0, receiveData.length);
 
 			} catch (Exception e) {
 				System.out.println("Erreur dans le serveur: " + e.getMessage());
@@ -49,9 +53,11 @@ public class Main {
 				byte[] receiveData = messageClient.receive();
 
 				assert receiveData.length == sendData.length : "Le nombre d'octects lus et d'octects écrits ne sont pas les mêmes";
+				System.out.println("Les données envoyées sont bien lus");
 
 				messageClient.close();
 				assert messageClient.closed() == true : "Le client est censé être déconnecter";
+				System.out.println("La déconnexion a bien été fait");
 
 			} catch (Exception e) {
 				System.out.println("Erreur dans le client: " + e.getMessage());
@@ -62,12 +68,15 @@ public class Main {
 		try {
 			server.start();
 			client.start();
-
+ 
 			server.join();
 			client.join();
 
 			assert server.getBroker() == brokerServer : "Il y'a un problème dans la méthode getBroker";
 			assert client.getBroker() == brokerClient : "Il y'a un problème dans la méthode getBroker";
+			
+			BrokerManagement.getSelf().removeBroker(brokerClient);
+			BrokerManagement.getSelf().removeBroker(brokerServer);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -133,6 +142,9 @@ public class Main {
 
 			assert server.getBroker() == brokerServer : "Il y'a un problème dans la méthode getBroker";
 			assert client.getBroker() == brokerClient : "Il y'a un problème dans la méthode getBroker";
+			
+			BrokerManagement.getSelf().removeBroker(brokerClient);
+			BrokerManagement.getSelf().removeBroker(brokerServer);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
