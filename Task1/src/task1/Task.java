@@ -1,15 +1,17 @@
 package task1;
 
+import event.QueueBrokerEvent;
 import task1Interface.ITask;
 
 public class Task extends Thread implements ITask{
 	Broker broker;
 	Runnable runnable;
 	QueueBroker queueBroker;
+	QueueBrokerEvent queueBrokerEvent;
 	static private Task task;
 	
 	
-	static Task getTask() {
+	public static Task getTask() {
 		return task;
 	}
 	
@@ -21,6 +23,13 @@ public class Task extends Thread implements ITask{
 	
 	public Task(QueueBroker b, Runnable r) {
 		this.queueBroker = b;
+		this.broker = b.getBroker();
+		this.runnable = r;
+		task = this;
+	}
+	
+	public Task(QueueBrokerEvent b, Runnable r) {
+		this.queueBrokerEvent = b;
 		this.broker = b.getBroker();
 		this.runnable = r;
 		task = this;
@@ -41,6 +50,11 @@ public class Task extends Thread implements ITask{
 	@Override
 	public QueueBroker getQueueBroker() {
 		return this.queueBroker;
+	}
+
+	@Override
+	public QueueBrokerEvent getQueueBrokerEvent() {
+		return this.queueBrokerEvent;
 	}
 
 }

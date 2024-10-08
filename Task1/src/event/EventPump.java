@@ -3,11 +3,12 @@ package event;
 import java.util.LinkedList;
 
 public class EventPump {
-	LinkedList<Runnable> queue;
+	LinkedList<TaskEvent> queue;
 	static EventPump instance;
+	
 
 	private EventPump() {
-		queue = new LinkedList<Runnable>();
+		queue = new LinkedList<TaskEvent>();
 	}
 
 	static {
@@ -19,19 +20,19 @@ public class EventPump {
 	}
 
 	public synchronized void run() {
-		Runnable r;
+		TaskEvent task;
 		while (true) {
-			r = queue.remove(0);
-			while (r != null) {
-				r.run();
-				r = queue.remove(0);
+			task = queue.remove(0);
+			while (task != null) {
+				task.getRunnable().run();
+				task = queue.remove(0);
 			}
 			sleep();
 		}
 	}
 
-	public synchronized void post(Runnable r) {
-		queue.add(r);
+	public synchronized void post(TaskEvent task) {
+		queue.add(task);
 		notify();
 	}
 

@@ -4,7 +4,7 @@ package eventAbstract;
 import event.MessageQueueEvent;
 
 public abstract class QueueBrokerEventAbstract {
-	String name;
+	protected String name;
 
 	public QueueBrokerEventAbstract(String name) {
 		this.name = name;
