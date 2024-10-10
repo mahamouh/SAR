@@ -22,11 +22,13 @@ public class Main {
     	brokerManagement.addBroker(brokerServer);
     	brokerManagement.addBroker(brokerClient);
     	
+    	
     	QueueBrokerManager management = QueueBrokerManager.getSelf();
 		QueueBrokerEvent serverQueueBroker = new QueueBrokerEvent("server");
 		serverQueueBroker.setBroker(brokerServer);
         new Task(serverQueueBroker, () -> runServerMessage(messageSize)).start();
         
+        brokerServer.removePort(8080);
         try {
             Thread.sleep(1000); // Wait for the server to starts
         } catch (InterruptedException e) {
@@ -39,6 +41,7 @@ public class Main {
         
         management.addBroker(serverQueueBroker);
         management.addBroker(clientQueueBroker);
+       
         
         EventPump.getSelf().run();
     }

@@ -27,6 +27,7 @@ public class EventPump {
 		while (true) {
 			task = queue.remove(0);
 			while (task != null) {
+				System.out.println("TASK " + task.getClass());
 				task.getRunnable().run();
 				task = queue.remove(0);
 			}
