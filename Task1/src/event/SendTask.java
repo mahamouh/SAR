@@ -1,7 +1,6 @@
 package event;
 
 public class SendTask extends TaskEvent{
-	Runnable runnable;
 
 	public SendTask() {
 		super();

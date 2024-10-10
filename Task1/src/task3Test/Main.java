@@ -12,9 +12,10 @@ import task1.Task;
 
 public class Main {
 	
-	public final static int messageSize = 5000;
+	public final static int messageSize = 250;
 	
     public static void main(String[] args) {
+    
     	BrokerManagement brokerManagement = BrokerManagement.getSelf();
     	Broker brokerServer = new Broker("server");
     	Broker brokerClient = new Broker("client");
@@ -28,7 +29,7 @@ public class Main {
 		serverQueueBroker.setBroker(brokerServer);
         new Task(serverQueueBroker, () -> runServerMessage(messageSize)).start();
         
-        brokerServer.removePort(8080);
+        
         try {
             Thread.sleep(1000); // Wait for the server to starts
         } catch (InterruptedException e) {
@@ -42,8 +43,8 @@ public class Main {
         management.addBroker(serverQueueBroker);
         management.addBroker(clientQueueBroker);
        
-        
         EventPump.getSelf().run();
+        
     }
     
     private static void runServerMessage(int messageSize) {
@@ -97,7 +98,6 @@ class MyEchoServerListener implements MessageQueueEvent.IListener {
 	@Override
 	public void sent(Message message) {
 		System.out.println("Server sent response");
-		queue.close();
 	}
 }
 
@@ -138,7 +138,6 @@ class MyEchoClientListener implements MessageQueueEvent.IListener {
 	@Override
 	public void sent(Message message) {
 		System.out.println("Client sent message");
-		queue.close();
 	}
 	
 }	

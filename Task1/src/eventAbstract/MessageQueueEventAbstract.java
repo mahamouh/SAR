@@ -4,7 +4,7 @@ import event.Message;
 import task1.Channel;
 
 public abstract class MessageQueueEventAbstract {
-	Channel channel;
+	public Channel channel;
 	
 	public MessageQueueEventAbstract(Channel channel) {
 		this.channel = channel;

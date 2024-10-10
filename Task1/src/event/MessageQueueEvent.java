@@ -9,7 +9,6 @@ public class MessageQueueEvent extends MessageQueueEventAbstract{
 	private IListener listener;
 	private MessageQueueEvent rmMessageQueueEvent;
 	private boolean isClosed = false;
-	private Channel channel;
 
 	public MessageQueueEvent(Channel channel) {
 		super(channel);
@@ -54,9 +53,11 @@ public class MessageQueueEvent extends MessageQueueEventAbstract{
 			Message msg = new Message(bytes, offset, length);
 			listener.sent(msg);
 		}
+		
+		if(this.rmMessageQueueEvent.listener != null) {
+			this.rmMessageQueueEvent.listener.received(bytes);
+		}
 
-
-		System.out.println("le message a bien été envoyé");
 		return true;
 	}
 
@@ -91,7 +92,6 @@ public class MessageQueueEvent extends MessageQueueEventAbstract{
 			listener.received(bytes);
 		}
 
-		System.out.println("le message a bien été envoyé");
 		return true;
 		
 	}

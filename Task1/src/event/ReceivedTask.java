@@ -2,7 +2,6 @@ package event;
 
 
 public class ReceivedTask extends TaskEvent {
-	Runnable runnable;
 
 	public ReceivedTask() {
 		super();

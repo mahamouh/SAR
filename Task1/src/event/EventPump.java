@@ -5,7 +5,6 @@ import java.util.LinkedList;
 public class EventPump {
 	LinkedList<TaskEvent> queue;
 	static EventPump instance;
-	
 
 	private EventPump() {
 		queue = new LinkedList<TaskEvent>();
@@ -21,15 +20,13 @@ public class EventPump {
 
 	public synchronized void run() {
 		TaskEvent task;
-		if(queue.isEmpty()) {
+		if (queue.isEmpty()) {
 			sleep();
 		}
-		while (true) {
+		while (!queue.isEmpty()) {
 			task = queue.remove(0);
-			while (task != null) {
-				System.out.println("TASK " + task.getClass());
+			if (task != null) {
 				task.getRunnable().run();
-				task = queue.remove(0);
 			}
 			sleep();
 		}

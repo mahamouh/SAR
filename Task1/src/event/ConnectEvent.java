@@ -4,7 +4,6 @@ package event;
 import eventAbstract.QueueBrokerEventAbstract.IConnectListener;
 
 public class ConnectEvent extends TaskEvent {
-	Runnable runnable;
 	
 	public ConnectEvent(QueueBrokerEvent broker, String name, int port, IConnectListener listener) {
 		super();

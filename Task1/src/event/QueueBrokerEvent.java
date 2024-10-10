@@ -48,7 +48,7 @@ public class QueueBrokerEvent extends QueueBrokerEventAbstract {
 			System.out.println("Port " + port + " est déjà relié");
 			return false;
 		} else {
-			AcceptEvent acceptEvent = new AcceptEvent(this, port, listener, accepts);
+			AcceptEvent acceptEvent = new AcceptEvent(port, listener, accepts);
 			acceptEvent.postTask();
 			System.out.println("Port " + port + " a bien été relié");
 			return true;
@@ -100,9 +100,8 @@ public class QueueBrokerEvent extends QueueBrokerEventAbstract {
 
 			acceptListener.accepted(messageQueueAccept);
 			listener.connected(messageQueueConnect);
-			System.out.println("La connection avec " + name + " sur le " + port + " a bien été réalisé");
 		} else {
-			System.out.println("La connection avec " + name + " sur le " + port + " a été refusé");
+			listener.refused();
 		}
 	}
 }
