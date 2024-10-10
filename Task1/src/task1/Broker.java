@@ -25,6 +25,17 @@ public class Broker implements IBroker {
 	public String getName() {
 		return this.name;
 	}
+	
+	public void removePort(int port) {
+		RdV rdv = null;
+		synchronized (rdV) {
+			rdv = rdV.get(port);
+			if(rdv != null) {
+				rdV.remove(port);
+			}
+			rdV.notifyAll();
+		}
+	}
 
 
 	@Override

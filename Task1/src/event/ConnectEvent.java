@@ -8,6 +8,7 @@ public class ConnectEvent extends TaskEvent {
 	
 	public ConnectEvent(QueueBrokerEvent broker, String name, int port, IConnectListener listener) {
 		super();
+		
 		this.runnable = new Runnable () {
 			@Override
 			public void run() {

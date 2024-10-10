@@ -3,7 +3,6 @@ package event;
 import task1.Channel;
 
 public class CloseEvent extends TaskEvent{
-	Runnable runnable;
 
 	public CloseEvent(Channel channel) {
 		super();

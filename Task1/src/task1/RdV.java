@@ -30,19 +30,18 @@ public class RdV {
 				e.printStackTrace();
 			}
 		}
-	}
+	} 
 
 	public synchronized Channel accept(Broker brokerAccept) {
 		this.brokerAccept = brokerAccept;
 
 		bufferAC = new CircularBuffer(256);
-		bufferCA = new CircularBuffer(256);
-		
+		channelAccept = new Channel(bufferAC);
 
-		if (brokerConnect == null) {
+		if (channelConnect == null) {
 			waitChannel();
 		} else {
-			channelAccept = new Channel(bufferAC, bufferCA, channelConnect);
+			channelAccept.setRmChannel(channelConnect);
 			notifyAll();
 		}
 
@@ -53,11 +52,13 @@ public class RdV {
 
 	public synchronized Channel connect(Broker brokerConnect) {
 		this.brokerConnect = brokerConnect;
-
+		bufferCA = new CircularBuffer(256);
+		channelConnect = new Channel(bufferCA);
+		
 		if (brokerAccept == null) {
 			waitChannel();
 		} else {
-			channelConnect = new Channel(bufferCA, bufferAC, channelAccept);
+			channelConnect.setRmChannel(channelAccept);
 			notifyAll();
 		}
 		

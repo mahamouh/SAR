@@ -4,17 +4,22 @@ import exception.DisconnectedException;
 import task1Interface.IChannel;
 
 public class Channel implements IChannel {
+	int port;
 	CircularBuffer bufferOut;
 	CircularBuffer bufferIn;
 	boolean isDisconnect = false;
 	Channel rmChannel;
 
-	public Channel(CircularBuffer out, CircularBuffer in, Channel rmChannel) {
-		this.bufferOut = out;
+	public Channel(CircularBuffer in) {
 		this.bufferIn = in; 
-		this.rmChannel = rmChannel;
 	}
  
+	public void setRmChannel(Channel rmChannel) {
+		this.rmChannel = rmChannel;
+		this.bufferOut = rmChannel.bufferIn;
+		rmChannel.bufferOut = this.bufferIn;
+	}
+	
 	@Override
 	public int read(byte[] bytes, int offset, int length) throws DisconnectedException {
 		int cpt = 0; // Nb des bytes lus
@@ -35,7 +40,7 @@ public class Channel implements IChannel {
 				}
 			}
 		}
-		while (!bufferIn.empty() || cpt != length) {
+		while (!bufferIn.empty() && cpt != length) {
 			if (!disconnected()) {
 				bytes[offset + cpt] = bufferIn.pull();
 				cpt += 1;
@@ -45,13 +50,10 @@ public class Channel implements IChannel {
 		}
 		
 		if(cpt != 0) {
-			synchronized(bufferOut) {
-				bufferOut.notifyAll();
+			synchronized(bufferIn) {
+				bufferIn.notifyAll();
 			}
 		}
-		
-		System.out.println("Nombre d'octetcs envoyé: " + length);
-		System.out.println("Nombre d'octetcs lus: " + cpt);
 		return cpt;
 	}
 
@@ -77,7 +79,7 @@ public class Channel implements IChannel {
 			}
 		}
 		
-		while (!bufferOut.full() || cpt != length) {
+		while (!bufferOut.full() && cpt != length) {
 			if (!disconnected()) {
 				bufferOut.push(bytes[offset + cpt]);
 				cpt += 1;
@@ -87,12 +89,10 @@ public class Channel implements IChannel {
 		}
 		
 		if(cpt != 0) {
-			synchronized(bufferIn) {
-				bufferIn.notifyAll();
+			synchronized(bufferOut) {
+				bufferOut.notifyAll();
 			}
 		}
-		System.out.println("Nombre d'octetcs envoyé: " + length);
-		System.out.println("Nombre d'octetcs écrits: " + cpt);
 		return cpt;
 	}
 

@@ -5,13 +5,13 @@ import java.util.Map;
 import eventAbstract.QueueBrokerEventAbstract.IAcceptListener;
 
 public class AcceptEvent extends TaskEvent{
-	Runnable runnable;
 
-	public AcceptEvent(int port, IAcceptListener listener, Map<Integer, IAcceptListener> accepts) {
+	public AcceptEvent(QueueBrokerEvent queue, int port, IAcceptListener listener, Map<Integer, IAcceptListener> accepts) {
 		super();
 		this.runnable = new Runnable () {
 			@Override
 			public void run() {
+				queue.setChannelAccept(queue.getBroker().accept(port));
 				accepts.put(port, listener);
 			}
 		};
@@ -24,5 +24,10 @@ public class AcceptEvent extends TaskEvent{
 
 	public void postTask() {
 		super.postTask();
+	}
+	
+	
+	public Runnable getRunnable() {
+		return super.getRunnable();
 	}
 }

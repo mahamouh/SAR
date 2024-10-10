@@ -38,18 +38,21 @@ public class QueueBrokerEvent extends QueueBrokerEventAbstract {
 		return this.channelConnect;
 	}
 
+	public void setChannelAccept(Channel channel) {
+		this.channelAccept = channel;
+	}
+
 	public boolean bind(int port, IAcceptListener listener) {
 		channelAccept = broker.accept(port);
 		if (accepts.containsKey(port)) {
 			System.out.println("Port " + port + " est déjà relié");
 			return false;
-		} else if (channelAccept != null) {
-			AcceptEvent acceptEvent = new AcceptEvent(port, listener, accepts);
+		} else {
+			AcceptEvent acceptEvent = new AcceptEvent(this, port, listener, accepts);
 			acceptEvent.postTask();
 			System.out.println("Port " + port + " a bien été relié");
 			return true;
 		}
-		return false;
 	}
 
 	public boolean unbind(int port) {
@@ -71,7 +74,6 @@ public class QueueBrokerEvent extends QueueBrokerEventAbstract {
 		IAcceptListener acceptListener = queueBrokerServer.accepts.get(port);
 
 		if (acceptListener != null) {
-
 			ConnectEvent connectEvent = new ConnectEvent(this, name, port, listener);
 			connectEvent.postTask();
 			return true;
