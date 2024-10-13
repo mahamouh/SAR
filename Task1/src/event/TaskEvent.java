@@ -12,7 +12,7 @@ public class TaskEvent extends TaskEventAbstract {
 		task = this;
 	}
 
-	public void post(Runnable r) {
+	public synchronized void post(Runnable r) {
 		if (!this.killed) {
 			this.runnable = r;
 			EventPump.getSelf().post(this);
@@ -22,7 +22,7 @@ public class TaskEvent extends TaskEventAbstract {
 
 	}
 
-	public void postTask() {
+	public synchronized void postTask() {
 		if (!this.killed) {
 			EventPump.getSelf().post(this);
 		} else {

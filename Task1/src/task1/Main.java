@@ -26,7 +26,7 @@ public class Main {
 			try {
 
 				MessageQueue messageServer = queueServer.accept(8080);
-				byte[] receiveData = messageServer.receive();
+				byte[] receiveData = messageServer.receive(); 
 				
 				messageServer.send(receiveData, 0, receiveData.length);
 

@@ -17,13 +17,16 @@ public class ConnectEvent extends TaskEvent {
 	}
 	
 	@Override
-	public void post(Runnable r) {
+	public synchronized void post(Runnable r) {
 		throw new IllegalStateException("Cette méthode ne peut pas être appelé ici");
 	}
-	
 
-	public void postTask() {
+	public synchronized void postTask() {
 		super.postTask();
+	}
+	
+	public Runnable getRunnable() {
+		return super.getRunnable();
 	}
 
 }

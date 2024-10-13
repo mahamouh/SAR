@@ -48,16 +48,16 @@ public class MessageQueueEvent extends MessageQueueEventAbstract{
 			}
 		}
 
-		
+
 		if (listener != null) {
 			Message msg = new Message(bytes, offset, length);
 			listener.sent(msg);
 		}
 		
-		if(this.rmMessageQueueEvent.listener != null) {
-			this.rmMessageQueueEvent.listener.received(bytes);
+		if(rmMessageQueueEvent.listener != null) {
+			rmMessageQueueEvent.listener.received(bytes);
 		}
-
+		
 		return true;
 	}
 
