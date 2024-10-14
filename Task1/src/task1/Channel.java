@@ -99,14 +99,13 @@ public class Channel implements IChannel {
 	@Override
 	public void disconnect() {
 		if(isDisconnect) {
-			System.out.println("La déconnexion a deja été coupée");
 			return;
 		}
 		
-		System.out.println("Demande de deconnexion réalisée");
-		
 		this.isDisconnect = true;
-		this.rmChannel.isDisconnect = true;
+		if(this.rmChannel != null) {
+			this.rmChannel.isDisconnect = true;
+		}
 		
 		synchronized(bufferIn) {
 			bufferIn.notifyAll();

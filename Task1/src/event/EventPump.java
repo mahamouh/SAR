@@ -5,6 +5,7 @@ import java.util.LinkedList;
 public class EventPump {
 	LinkedList<TaskEvent> queue;
 	static EventPump instance;
+	private Boolean killed = false;
 
 	private EventPump() {
 		queue = new LinkedList<TaskEvent>();
@@ -20,21 +21,26 @@ public class EventPump {
 
 	public synchronized void run() {
 		TaskEvent task;
-		if (queue.isEmpty()) {
-			sleep();
-		}
-		while (!queue.isEmpty()) {
-			task = queue.remove(0);
-			if (task != null) {
-				task.getRunnable().run();
-				task.killed();
+		while(!killed) {
+			if (queue.isEmpty()) {
+				sleep();
+			} else {
+				task = queue.remove(0);
+				if (task != null) {
+					task.getRunnable().run();
+					task.killed();
+				}
 			}
-			sleep();
 		}
+		
+	}
+	
+	public void kill() {
+		Thread.currentThread().interrupt();
 	}
 
 	public synchronized void post(TaskEvent task) {
-		queue.add(task);
+		queue.addLast(task);
 		notify();
 	}
 

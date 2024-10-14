@@ -10,12 +10,10 @@ import task1.Channel;
 import task1.QueueBroker;
 
 public class QueueBrokerEvent extends QueueBrokerEventAbstract {
-	private Map<Integer, IAcceptListener> accepts = new HashMap<>();
+	private Map<Integer, Thread> accepts = new HashMap<>();
 	private Broker broker;
 	private Channel channelAccept;
 	private Channel channelConnect;
-	Boolean bind = false;
-	Boolean connect = false;
 
 	public QueueBrokerEvent(String name) {
 		super(name);
@@ -50,24 +48,26 @@ public class QueueBrokerEvent extends QueueBrokerEventAbstract {
 			System.out.println("Port " + port + " est déjà relié");
 			return false;
 		}
-		Thread acceptThread = new Thread() {
 
+		Thread acceptThread = new Thread() {
 			@Override
 			public void run() {
 				channelAccept = broker.accept(port);
-				AcceptEvent acceptEvent = new AcceptEvent(port, listener, accepts);
+				MessageQueueEvent messageQueueAccept = new MessageQueueEvent(channelAccept);
+				AcceptEvent acceptEvent = new AcceptEvent(listener, messageQueueAccept);
 				acceptEvent.postTask();
-				System.out.println("Port " + port + " a bien été relié");
-				bind = true;
 			}
 		};
+
+		accepts.put(port, acceptThread);
 		acceptThread.start();
-		return bind;
+		return true;
 	}
 
 	public boolean unbind(int port) {
 		if (accepts.get(port) != null) {
-			accepts.remove(port);
+			Thread acceptThread = accepts.remove(port);
+			acceptThread.interrupt();
 			System.out.println("Port " + port + " a bien été enlévé");
 			return true;
 		}
@@ -76,49 +76,28 @@ public class QueueBrokerEvent extends QueueBrokerEventAbstract {
 	}
 
 	public boolean connect(String name, int port, IConnectListener listener) {
-		Thread connectThread = new Thread() {
 
+		QueueBrokerEvent queueBrokerServer = QueueBrokerManager.getSelf().getBroker(name);
+		if (queueBrokerServer == null) {
+			return false;
+		}
+
+		Thread connectThread = new Thread() {
 			@Override
 			public void run() {
-				QueueBrokerEvent queueBrokerServer = QueueBrokerManager.getSelf().getBroker(name);
-				if (queueBrokerServer == null) {
-					connect = false;
-				}
-
-				IAcceptListener acceptListener = queueBrokerServer.accepts.get(port);
-
-				if (acceptListener != null) {
-					ConnectEvent connectEvent = new ConnectEvent(QueueBrokerEvent.this, name, port, listener);
+				try {
+					channelConnect = broker.connect(name, port);
+					MessageQueueEvent messageQueueConnect = new MessageQueueEvent(channelConnect);
+					ConnectEvent connectEvent = new ConnectEvent(listener, messageQueueConnect);
 					connectEvent.postTask();
-					connect = true;
-				} else {
+				} catch (Exception e) {
 					listener.refused();
-					connect = false;
 				}
 			}
 		};
+
 		connectThread.start();
-		return connect;
+		return true;
 	}
 
-	public void _connect(String name, int port, IConnectListener listener) {
-		QueueBrokerEvent queueBrokerServer = QueueBrokerManager.getSelf().getBroker(name);
-		IAcceptListener acceptListener = queueBrokerServer.accepts.get(port);
-		channelConnect = broker.connect(name, port);
-		if (acceptListener != null && channelConnect != null) {
-
-			channelAccept = queueBrokerServer.getChannelAccept();
-
-			MessageQueueEvent messageQueueConnect = new MessageQueueEvent(channelConnect);
-			MessageQueueEvent messageQueueAccept = new MessageQueueEvent(channelAccept);
-
-			messageQueueConnect.setRmMessageQueueEvent(messageQueueAccept);
-			messageQueueAccept.setRmMessageQueueEvent(messageQueueConnect);
-
-			acceptListener.accepted(messageQueueAccept);
-			listener.connected(messageQueueConnect);
-		} else {
-			listener.refused();
-		}
-	}
 }

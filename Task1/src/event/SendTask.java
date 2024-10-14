@@ -1,13 +1,15 @@
 package event;
 
-public class SendTask extends TaskEvent{
+import eventAbstract.MessageQueueEventAbstract;
 
-	public SendTask() {
+public class SendTask extends TaskEvent {
+
+	public SendTask(MessageQueueEventAbstract.IListener listener, Message msg) {
 		super();
-		this.runnable = new Runnable () {
+		this.runnable = new Runnable() {
 			@Override
 			public void run() {
-				
+				listener.sent(msg);
 			}
 		};
 	}
@@ -20,7 +22,7 @@ public class SendTask extends TaskEvent{
 	public synchronized void postTask() {
 		super.postTask();
 	}
-	
+
 	public Runnable getRunnable() {
 		return super.getRunnable();
 	}

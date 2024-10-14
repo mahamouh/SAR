@@ -15,6 +15,16 @@ public class AcceptEvent extends TaskEvent{
 			}
 		};
 	}
+	
+	public AcceptEvent(IAcceptListener listener, MessageQueueEvent msg) {
+		super();
+		this.runnable = new Runnable () {
+			@Override
+			public void run() {
+				listener.accepted(msg);
+			}
+		};
+	}
 
 	@Override
 	public synchronized void post(Runnable r) {

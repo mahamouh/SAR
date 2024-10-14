@@ -99,6 +99,7 @@ class MyEchoServerQueueListener implements MessageQueueEvent.IListener {
 	@Override
 	public void sent(Message message) {
 		System.out.println("Server sent response");
+		queue.close();
 	}
 }
 
@@ -129,7 +130,7 @@ class MyEchoClientQueueListener implements MessageQueueEvent.IListener {
 		}
 
 		queue.close();
-
+		EventPump.getSelf().kill();
 		System.out.println("Test passed");
 	}
 
@@ -141,7 +142,7 @@ class MyEchoClientQueueListener implements MessageQueueEvent.IListener {
 	@Override
 	public void sent(Message message) {
 		System.out.println("Client sent message");
-	}
+	} 
 
 }
 

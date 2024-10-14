@@ -5,13 +5,13 @@ import eventAbstract.QueueBrokerEventAbstract.IConnectListener;
 
 public class ConnectEvent extends TaskEvent {
 	
-	public ConnectEvent(QueueBrokerEvent broker, String name, int port, IConnectListener listener) {
+	public ConnectEvent(IConnectListener listener, MessageQueueEvent msg) {
 		super();
 		
 		this.runnable = new Runnable () {
 			@Override
 			public void run() {
-				broker._connect(name, port, listener);
+				listener.connected(msg);
 			}
 		};
 	}
