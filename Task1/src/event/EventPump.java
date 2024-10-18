@@ -28,7 +28,7 @@ public class EventPump {
 				task = queue.remove(0);
 				if (task != null) {
 					task.getRunnable().run();
-					task.killed();
+					task.kill();
 				}
 			}
 		}

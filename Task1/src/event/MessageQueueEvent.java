@@ -70,8 +70,8 @@ public class MessageQueueEvent extends MessageQueueEventAbstract {
 
 	private final Thread threadReceive = new Thread(() -> {
 		while (!isClosed) {
-			// On lit la taille du buffer
 			try {
+				// On lit la taille du buffer
 				byte[] sizeBuffer = new byte[4];
 				try {
 					channel.read(sizeBuffer, 0, sizeBuffer.length);
@@ -106,8 +106,8 @@ public class MessageQueueEvent extends MessageQueueEventAbstract {
 		if (isClosed) {
 			return;
 		}
-		this.threadSent.stop();
-		this.threadReceive.stop();
+		this.threadSent.interrupt();
+		this.threadReceive.interrupt();
 		isClosed = true;
 		CloseEvent closeEvent = new CloseEvent(channel, listener);
 		closeEvent.postTask();
