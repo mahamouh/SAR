@@ -9,6 +9,7 @@ public class Channel implements IChannel {
 	CircularBuffer bufferIn;
 	boolean isDisconnect = false;
 	Channel rmChannel;
+	boolean dangling;
 
 	public Channel(CircularBuffer in) {
 		this.bufferIn = in; 
@@ -18,7 +19,8 @@ public class Channel implements IChannel {
 		this.rmChannel = rmChannel;
 		this.bufferOut = rmChannel.bufferIn;
 		rmChannel.bufferOut = this.bufferIn;
-	}
+		this.dangling = this.rmChannel.disconnected();
+		}
 	
 	@Override
 	public int read(byte[] bytes, int offset, int length) throws DisconnectedException {
@@ -63,12 +65,17 @@ public class Channel implements IChannel {
 		if (disconnected()) {
 			throw new DisconnectedException("La connection a été coupée. Veuillez vous déconnecter");
 		}
-		
+		if(dangling) {
+			disconnect();
+		}
 		if(bufferOut.full()) {
 			synchronized(bufferOut) {
 				while(bufferOut.full()) {
 					if (disconnected()) {
 						throw new DisconnectedException("La connection a été coupée.");
+					}
+					if(dangling) {
+						disconnect();
 					}
 					try {
 						bufferOut.wait();
@@ -104,7 +111,7 @@ public class Channel implements IChannel {
 		
 		this.isDisconnect = true;
 		if(this.rmChannel != null) {
-			this.rmChannel.isDisconnect = true;
+			this.rmChannel.dangling = true;
 		}
 		
 		synchronized(bufferIn) {

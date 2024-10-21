@@ -78,7 +78,7 @@ public class Broker implements IBroker {
 			}
 			this.rdV.remove(port);
 		}
-		return rdv.connect(this);
+		return rdv.connect(b);
 	}
 
 }

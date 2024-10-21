@@ -69,47 +69,50 @@ public class MessageQueueEvent extends MessageQueueEventAbstract {
 	}
 
 	private final Thread threadReceive = new Thread(() -> {
-		while (!isClosed) {
-			try {
-				// On lit la taille du buffer
-				byte[] sizeBuffer = new byte[4];
+			while (!isClosed) {
 				try {
-					channel.read(sizeBuffer, 0, sizeBuffer.length);
-				} catch (DisconnectedException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
-
-				// On lit le buffer
-				int size = bytesToInt(sizeBuffer);
-				byte[] bytes = new byte[size];
-				int cpt = 0;
-				try {
-					while (cpt != size) {
-						cpt += channel.read(bytes, cpt, bytes.length - cpt);
+				
+					// On lit la taille du buffer
+					byte[] sizeBuffer = new byte[4];
+					try {
+						channel.read(sizeBuffer, 0, sizeBuffer.length);
+					} catch (DisconnectedException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
 					}
-				} catch (DisconnectedException e) {
-					System.err.println("Error during receive: " + e.getMessage());
-				}
 
-				if (listener != null && bytes != null) {
-					ReceivedTask receivedTask = new ReceivedTask(listener, bytes);
-					receivedTask.postTask();
+					// On lit le buffer
+					int size = bytesToInt(sizeBuffer);
+					byte[] bytes = new byte[size];
+					int cpt = 0;
+					try {
+						while (cpt != size) {
+							cpt += channel.read(bytes, cpt, bytes.length - cpt);
+						}
+					} catch (DisconnectedException e) {
+						System.err.println("Error during receive: " + e.getMessage());
+					}
+
+					if (listener != null && bytes != null) {
+						ReceivedTask receivedTask = new ReceivedTask(listener, bytes);
+						receivedTask.postTask();
+					}
+				} catch (Exception e) {
+					break;
 				}
-			} catch (Exception e) {
-				break;
 			}
-		}
+		
 	});
 
 	public void close() {
 		if (isClosed) {
 			return;
 		}
-		this.threadSent.interrupt();
-		this.threadReceive.interrupt();
+		threadSent.interrupt();
+		threadReceive.interrupt();
 		isClosed = true;
-		CloseEvent closeEvent = new CloseEvent(channel, listener);
+		channel.disconnect();
+		CloseEvent closeEvent = new CloseEvent(listener);
 		closeEvent.postTask();
 	}
 
