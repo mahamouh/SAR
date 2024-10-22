@@ -86,6 +86,7 @@ public class ChannelFull implements ChannelFullAbstract {
 			TaskEvent task = new TaskEvent();
 			task.post(() -> {
 				listener.wrote(bytes);
+				rmChannel.listener.availaible(msg);
 			});
 		}
 		return cpt;

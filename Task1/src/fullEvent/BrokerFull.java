@@ -63,7 +63,7 @@ public class BrokerFull implements BrokerFullAbstract{
 		task.post(() -> {
 			listener.connected(channel);
 		});
-		return false;
+		return true;
 	}
 
 }
