@@ -8,7 +8,7 @@ public interface ChannelFullAbstract {
         void wrote(byte[] bytes);
         void disconnected();
         void read(Message msg);
-        void availaible(Message msg);
+        void availaible();
     }
     
     public abstract void setListener(IChannelListener l);

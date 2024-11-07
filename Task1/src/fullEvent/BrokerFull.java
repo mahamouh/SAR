@@ -58,12 +58,25 @@ public class BrokerFull implements BrokerFullAbstract{
 			});
 			return false;
 		}
+		
 		ChannelFull channel = rdv.connect(this);
-		TaskEvent task = new TaskEvent();
-		task.post(() -> {
-			listener.connected(channel);
-		});
-		return true;
+		if(channel == null) {
+			TaskEvent task = new TaskEvent();
+			task.post(() -> {
+				listener.refused();
+			});
+			return false;
+		} else {
+			TaskEvent task = new TaskEvent();
+			task.post(() -> {
+				listener.connected(channel);
+			});
+			return true;
+		}
+	}
+	
+	public void clearRdv(int port) {
+		this.rdV.get(port).clearPort();
 	}
 
 }

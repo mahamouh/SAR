@@ -44,6 +44,22 @@ public class TestChannelFull {
 				}
 			}
 		};
+		
+		Runnable clientRunnable2 = new Runnable() {
+			public void run() {
+				BrokerFullManager brokerManagement = BrokerFullManager.getSelf();
+				BrokerFull brokerClient = new BrokerFull("client2");
+				brokerManagement.addBroker(brokerClient);
+				
+				MyQueueConnectListener listener = new MyQueueConnectListener();
+				boolean connected = brokerClient.connect("server", 8080, listener);
+				if (!connected) {
+					System.out.println("Client2 failed to connect");
+					return;
+				}
+			}
+		};
+		
 
 		new TaskEvent().post(serverRunnable);
 		
@@ -54,7 +70,32 @@ public class TestChannelFull {
         }
 		
 		new TaskEvent().post(clientRunnable);
+		new TaskEvent().post(clientRunnable2);
 		EventPump.getSelf().run();
+	}
+	
+
+	public static void ajoutClient3() {
+		BrokerFullManager brokerManagement = BrokerFullManager.getSelf();
+		if(brokerManagement.getBroker("client3") == null) {
+			Runnable clientRunnable3 = new Runnable() {
+				public void run() {
+					
+					BrokerFull brokerClient = new BrokerFull("client3");
+					brokerManagement.addBroker(brokerClient);
+					
+					MyQueueConnectListener listener = new MyQueueConnectListener();
+					boolean connected = brokerClient.connect("server", 8080, listener);
+					if (!connected) {
+						System.out.println("Client3 failed to connect");
+						return;
+					}
+				}
+			};
+			
+			
+			new TaskEvent().post(clientRunnable3);
+		}	
 	}
 }
 
@@ -74,6 +115,7 @@ class MyEchoServerChannelListener implements ChannelFullAbstract.IChannelListene
 
 	@Override
 	public void disconnected() {
+		
 		System.out.println("Server finished");
 		
 	}
@@ -90,8 +132,8 @@ class MyEchoServerChannelListener implements ChannelFullAbstract.IChannelListene
 	}
 
 	@Override
-	public void availaible(Message msg) {
-		byte [] bytes = new byte[msg.getLength()];
+	public void availaible() {
+		byte [] bytes = new byte[TestChannelFull.messageSize];
 		try {
 			channel.read(bytes, 0, bytes.length);
 		} catch (DisconnectedException e) {
@@ -140,14 +182,17 @@ class MyEchoClientChannelListener implements ChannelFullAbstract.IChannelListene
 			}
 		}
 
-		EventPump.getSelf().kill();
 		channel.disconnect();
+		
+		BrokerFullManager.getSelf().getBroker("server").clearRdv(channel.getPort());
+		TestChannelFull.ajoutClient3();
+		
 		System.out.println("Test passed");
 	}
 
 	@Override
-	public void availaible(Message msg) {
-		byte [] bytes = new byte[msg.getLength()];
+	public void availaible() {
+		byte [] bytes = new byte[TestChannelFull.messageSize];
 		try {
 			channel.read(bytes, 0, bytes.length);
 		} catch (DisconnectedException e) {
@@ -203,4 +248,5 @@ class MyQueueConnectListener implements BrokerFullAbstract.IBrokerConnectListene
 		
 	}
 
+	
 }

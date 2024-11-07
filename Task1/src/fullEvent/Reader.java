@@ -11,17 +11,16 @@ public class Reader {
 
 	private State state;
 	CircularBuffer bufferIn;
-	ChannelFull channel; 
+	ChannelFull channel;
 
-	public Reader(CircularBuffer bufferIn, ChannelFull channel) {
+	public Reader(ChannelFull channel) {
 		state = State.READING_LENGTH;
-		this.bufferIn = bufferIn;
+		this.bufferIn = channel.bufferIn;
 		this.channel = channel;
 	}
 
 	public byte[] handleRead() throws DisconnectedException {
 		byte[] data;
-		int cpt = 0;
 		int len = 0;
 		switch (this.state) {
 
@@ -31,29 +30,25 @@ public class Reader {
 			}
 			if (!this.bufferIn.empty()) {
 				byte[] sizeBuffer = new byte[4];
-				while (!bufferIn.empty() && cpt != sizeBuffer.length) {
-					if (!channel.disconnected()) {
-						sizeBuffer[cpt] = bufferIn.pull();
-						cpt += 1;
-					} else {
-						throw new DisconnectedException("La connection a été coupée.");
-					}
+				if (!channel.disconnected()) {
+					channel.readLen(sizeBuffer);
+					len = bytesToInt(sizeBuffer);
+				} else {
+					throw new DisconnectedException("La connection a été coupée.");
 				}
-				cpt = 0;
-				len = bytesToInt(sizeBuffer);
 				this.state = State.READING_MSG;
 			}
-			
+
 		case READING_MSG:
 			if (channel.disconnected()) {
 				throw new DisconnectedException("La connection a été coupée.");
 			}
 			if (!this.bufferIn.empty()) {
 				data = new byte[len];
-				while (!bufferIn.empty() && cpt != len) {
+				int cpt = 0;
+				while(cpt != len) {
 					if (!channel.disconnected()) {
-						data[cpt] = bufferIn.pull();
-						cpt += 1;
+						cpt += channel.read(data, cpt, len-cpt);
 					} else {
 						throw new DisconnectedException("La connection a été coupée.");
 					}

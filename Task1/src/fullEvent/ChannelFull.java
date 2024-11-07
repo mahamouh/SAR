@@ -15,18 +15,25 @@ public class ChannelFull implements ChannelFullAbstract {
 	ChannelFull rmChannel;
 	LinkedList<Message> queue = new LinkedList<Message>();
 	IChannelListener listener;
-	private boolean disconnected = false;
+	private boolean disconnected;
 	boolean dangling;
+	int port;
 
-	public ChannelFull(CircularBuffer in) {
+	public ChannelFull(CircularBuffer in, int port) {
 		this.bufferIn = in;
+		this.port = port;
 	}
 
+	public int getPort() {
+		return this.port;
+	}
+	
 	public void setRmChannel(ChannelFull rmChannel) {
+		this.disconnected = false;
 		this.rmChannel = rmChannel;
 		this.dangling = this.rmChannel.disconnected;
 		this.bufferOut = this.rmChannel.bufferIn;
-		this.rmChannel.bufferOut = this.bufferIn;
+		this.rmChannel.bufferOut = this.bufferIn;	
 	}
 
 	@Override
@@ -51,7 +58,7 @@ public class ChannelFull implements ChannelFullAbstract {
 			}
 
 		}
-		if (cpt == length) {
+		if (cpt == length && cpt != 4) {
 			Message msg = new Message(bytes, offset, length);
 			TaskEvent task = new TaskEvent();
 			task.post(() -> {
@@ -81,13 +88,53 @@ public class ChannelFull implements ChannelFullAbstract {
 				throw new DisconnectedException("The connexion has been broken");
 			}
 		}
-		if (cpt == length) {
+		if (cpt == length && cpt != 4) {
 			Message msg = new Message(bytes, offset, length);
 			TaskEvent task = new TaskEvent();
 			task.post(() -> {
 				listener.wrote(bytes);
-				rmChannel.listener.availaible(msg);
+				rmChannel.listener.availaible();
 			});
+		}
+		return cpt;
+	}
+	
+	public int writeLen(byte[] bytes) throws DisconnectedException {
+		if (disconnected || dangling) {
+			if (dangling) {
+				disconnect();
+			}
+			throw new DisconnectedException("The connexion has been broken");
+		}
+		int cpt = 0;
+		while (!bufferOut.full() && cpt != 4) {
+			if (!disconnected && !dangling) {
+				bufferOut.push(bytes[cpt]);
+				cpt += 1;
+			} else if (dangling) {
+				disconnect();
+			} else {
+				throw new DisconnectedException("The connexion has been broken");
+			}
+		}
+		return cpt;
+	}
+	
+	public int readLen(byte[] bytes) throws DisconnectedException {
+		if (disconnected) {
+			throw new DisconnectedException("La connection a été coupée.");
+		}
+		int cpt = 0;
+		if (!this.bufferIn.empty()) {
+			while (!bufferIn.empty() && cpt != 4) {
+				if (!disconnected) {
+					bytes[cpt] = bufferIn.pull();
+					cpt += 1;
+				} else {
+					throw new DisconnectedException("La connection a été coupée.");
+				}
+			}
+
 		}
 		return cpt;
 	}

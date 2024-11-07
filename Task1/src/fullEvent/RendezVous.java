@@ -23,29 +23,37 @@ public class RendezVous {
 	}
 
 
-	public synchronized ChannelFull accept(BrokerFull brokerAccept) {
+	public ChannelFull accept(BrokerFull brokerAccept) {
 		this.brokerAccept = brokerAccept;
 
 		bufferAC = new CircularBuffer(256);
-		channelAccept = new ChannelFull(bufferAC);
+		channelAccept = new ChannelFull(bufferAC, port);
 
 		return channelAccept;
 
 	}
 
-	public synchronized ChannelFull connect(BrokerFull brokerConnect) {
-		this.brokerConnect = brokerConnect;
-		bufferCA = new CircularBuffer(256);
-		channelConnect = new ChannelFull(bufferCA);
-		
-		if (brokerAccept == null) {
+	public ChannelFull connect(BrokerFull brokerConnect) {
+		if (this.brokerConnect != null) {
 			return null;
 		} 
 		
-		channelConnect.setRmChannel(channelAccept);
+		this.brokerConnect = brokerConnect;
+		
+		bufferCA = new CircularBuffer(256);
+		channelConnect = new ChannelFull(bufferCA, port);
+
 		channelAccept.setRmChannel(channelConnect);
+		channelConnect.setRmChannel(channelAccept);
+		
 		return channelConnect;
 
+	}
+	
+	public void clearPort() {
+		this.brokerConnect = null;
+		this.channelConnect = null;
+	
 	}
 
 }

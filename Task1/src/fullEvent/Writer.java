@@ -2,6 +2,7 @@ package fullEvent;
 
 import java.util.LinkedList;
 
+import event.Message;
 import exception.DisconnectedException;
 import task1.CircularBuffer;
 
@@ -14,21 +15,21 @@ public class Writer {
 
 	private State state;
 	CircularBuffer bufferOut;
-	LinkedList<byte[]> pendingMsgs = new LinkedList<byte[]>();
-	byte[] msg;
+	LinkedList<Message> pendingMsgs = new LinkedList<Message>();
+	Message msg;
 	ChannelFull channel; 
 
-	public Writer(CircularBuffer bufferOut, ChannelFull channel) {
+	public Writer(ChannelFull channel) {
 		state = State.WRITING_IDLE;
-		this.bufferOut = bufferOut;
+		this.bufferOut = channel.bufferOut;
 		this.channel = channel;
 	}
 
-	public void sendMsg(byte[] msg) {
+	public void sendMsg(Message msg) {
 		this.pendingMsgs.addLast(msg);
 	}
 
-	public boolean handleWrite() throws DisconnectedException {
+	public Message handleWrite() throws DisconnectedException {
 		int len = 0;
 		int cpt = 0;
 		switch (this.state) {
@@ -38,7 +39,7 @@ public class Writer {
 					throw new DisconnectedException("La connection a été coupée.");
 				}
 				this.msg = this.pendingMsgs.getFirst();
-				len = msg.length;
+				len = msg.getLength();
 				this.state = State.WRITING_LENGTH;
 			}
 		case WRITING_LENGTH:
@@ -46,36 +47,33 @@ public class Writer {
 				throw new DisconnectedException("La connection a été coupée.");
 			}
 			byte[] sizeMsg = intToBytes(len);
-			while (!bufferOut.full() && cpt != sizeMsg.length) {
+			if (!bufferOut.full()) {
 				if (!channel.disconnected()) {
-					bufferOut.push(sizeMsg[cpt]);
-					cpt += 1;
+					channel.writeLen(sizeMsg);
 				} else {
 					throw new DisconnectedException("La connection a été coupée. Veuillez vous déconnecter");
 				}
 			}
-			cpt = 0;
 			this.state = State.WRITING_MSG;
 
 		case WRITING_MSG:
 			if (channel.disconnected()) {
 				throw new DisconnectedException("La connection a été coupée.");
 			}
+			cpt = msg.getOffset();
 			while (!bufferOut.full() && cpt != len) {
 				if (!channel.disconnected()) {
-					bufferOut.push(msg[cpt]);
-					cpt += 1;
+					cpt += channel.write(msg.getByte(), cpt, len-cpt);
 				} else {
 					throw new DisconnectedException("La connection a été coupée. Veuillez vous déconnecter");
 				}
 			}
-			cpt = 0;
 			this.state = State.WRITING_IDLE;
 
 		default:
 			break;
 		}
-		return (pendingMsgs.size() == 0);
+		return msg;
 	}
 
 	private byte[] intToBytes(int value) {

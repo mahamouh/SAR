@@ -99,7 +99,8 @@ Pour channel, nous aurons une interface : ListenerChannel
 - len : la longueur à lire
 - return : le nombre de bytes écrites
 Donc il faut que le tableu accepte la longueur offset et offset+len entre le départ et la fin.
-Des qu'un write a été fini, nous allons utiliser utiliser la méthode ``` void wrote(Message msg) ``` de ce ListenerChannel.
+Des qu'un write a été fini, nous allons utiliser utiliser la méthode ``` void wrote(Message msg) ``` de ce ListenerChannel et appelle la méthode ``` void availaible(Message msg) ```
+du channel remote.
 
 # Read 
 ``` int read(byte[] bytes, int offset, int length)``` 
