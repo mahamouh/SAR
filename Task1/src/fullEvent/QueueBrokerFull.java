@@ -36,6 +36,10 @@ public class QueueBrokerFull implements QueueBrokerFullAbstract {
 		return brokerFull.connect(name, port, listenerConnect);
 	}
 	
+	public void clearRDV(MessageQueueFull queue) {
+		brokerFull.clearRdv(queue.getChannel().getPort());
+	}
+	
 	
 	class MyQueueConnectListener implements BrokerFullAbstract.IBrokerConnectListener {
 		IQueueBrokerConnectListener listener;
