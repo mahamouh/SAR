@@ -60,6 +60,10 @@ public class MessageQueueFull implements MessageQueueFullAbstract {
 		return this.channelFull.disconnected();
 	}
 	
+	public ChannelFull getChannel() {
+		return channelFull;
+	}
+	
 	class MyEchoClientChannelListener implements ChannelFullAbstract.IChannelListener {
 
 		IMessageQueueListener listener;
