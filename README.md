@@ -11,19 +11,23 @@ Tout le code et tests sont dans la branche **main**.
 Les documentations (specification et designs) sont aussi dans la branche **main**.
 
 ## Task1
-Le test correspondant est *echoServerTask1.java*<br>
+La task est dans le dossier threaded (abst, test, impl)
+Le test correspondant est *EchoTest.java*<br>
 Le scénario du test est un echoserver.
 
 ## Task2
-Le test correspondant est *echoServerTask2.java*<br>
+La task est dans le dossier threaded (abst, test, impl)
+Le test correspondant est *EchoTest.java*<br>
 Le scénario du test est un echoserver.
 
 ## Task3
-Le test correspondant est <br>
+La task est dans le dossier mixed (abst, test, impl)
+Le test correspondant est *GeneralizedTest.java* et *Test1.java*<br>
 Le scénario du premier test est un echoserver.
 
 ## Task4
-Le test correspondant est *TestChannelFull.java*
+La task4 et 5 se trouve dans le dossier fullEvent (abst, test, impl)
+Le test correspondant est *TestChannel.java* <br>
 
 Le scénario du test est:
 1. Un client1 et un serveur établissent une connection
