@@ -16,8 +16,8 @@ Le test correspondant est *EchoTest.java*<br>
 Le scénario du test est un echoserver.
 
 ## Task2
-La task est dans le dossier threaded (abst, test, impl)
-Le test correspondant est *EchoTest.java*<br>
+La task2 se trouve dans la branche Task2
+Le test correspondant est *EchoServer.java*<br>
 Le scénario du test est un echoserver.
 
 ## Task3
