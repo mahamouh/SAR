@@ -1,6 +1,6 @@
 package fullEvent;
 
-import task1.CircularBuffer;
+import threaded.impl.CircularBuffer;
 
 public class RendezVous {
 	int port;

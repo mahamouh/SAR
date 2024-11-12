@@ -2,7 +2,7 @@ package fullEvent;
 
 import exception.DisconnectedException;
 import fullEventAbstract.ChannelFullAbstract;
-import task1.CircularBuffer;
+import threaded.impl.CircularBuffer;
 
 import java.util.LinkedList;
 

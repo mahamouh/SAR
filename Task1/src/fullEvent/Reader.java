@@ -1,7 +1,7 @@
 package fullEvent;
 
 import exception.DisconnectedException;
-import task1.CircularBuffer;
+import threaded.impl.CircularBuffer;
 
 public class Reader {
 	// status to know where you are during reading

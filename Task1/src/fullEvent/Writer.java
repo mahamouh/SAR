@@ -4,7 +4,7 @@ import java.util.LinkedList;
 
 import event.Message;
 import exception.DisconnectedException;
-import task1.CircularBuffer;
+import threaded.impl.CircularBuffer;
 
 public class Writer {
 
